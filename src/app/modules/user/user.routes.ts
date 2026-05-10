@@ -36,10 +36,8 @@ router.patch(
 router.patch(
   '/update-profile',
   auth(
-    USER_ROLE.bartender,
-    USER_ROLE.venueOwner,
+    USER_ROLE.user,
     USER_ROLE.superAdmin,
-    USER_ROLE.customer,
   ),
   uploadFile(),
   parseJsonBody(),
@@ -49,18 +47,18 @@ router.patch(
 
 router.get(
   '/user-profile',
-  auth(
-    USER_ROLE.bartender,
-    USER_ROLE.venueOwner,
+    auth(
+    USER_ROLE.user,
     USER_ROLE.superAdmin,
-    USER_ROLE.customer,
   ),
   userControllers.getUserProfile,
 );
 
 router.delete(
   '/delete-account',
-  auth(USER_ROLE.bartender, USER_ROLE.venueOwner, USER_ROLE.customer),
+  auth(
+    USER_ROLE.user,
+  ),
   userControllers.deleteAccount,
 );
 export const userRoutes = router;
