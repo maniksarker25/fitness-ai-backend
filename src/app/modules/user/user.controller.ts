@@ -5,6 +5,17 @@ import catchAsync from '../../utilities/catchasync';
 import sendResponse from '../../utilities/sendResponse';
 import userServices from './user.services';
 
+
+const registerUser = catchAsync(async (req, res) => {
+    const result = await userServices.registerUser(req.body);
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'Registration successfull, please check your email inbox for verification',
+        data: result,
+    });
+});
+
 const verifyCode = catchAsync(async (req, res) => {
   const result = await userServices.verifyCode(
     req?.body?.email,
@@ -79,5 +90,6 @@ const userController = {
   updateUserProfile,
   getUserProfile,
   deleteAccount,
+  registerUser,
 };
 export default userController;

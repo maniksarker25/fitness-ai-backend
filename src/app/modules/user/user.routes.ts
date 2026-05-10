@@ -10,6 +10,12 @@ import userValidations from './user.validation';
 const router = Router();
 
 router.post(
+  '/register',
+  validateRequest(userValidations.registerUserValidationSchema),
+  userControllers.registerUser,
+);
+
+router.post(
   '/verify-code',
   validateRequest(userValidations.verifyCodeValidationSchema),
   userControllers.verifyCode,

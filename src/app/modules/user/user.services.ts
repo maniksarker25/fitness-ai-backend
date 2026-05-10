@@ -1,12 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-unused-vars */
 
+import bcrypt from 'bcrypt';
 import httpStatus from 'http-status';
 import { JwtPayload } from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import config from '../../config';
 import AppError from '../../error/appError';
 import { registrationSuccessEmailBody } from '../../mailTemplate/registerSucessEmail';
 import sendEmail from '../../utilities/sendEmail';
+import { INormalUser } from '../normalUser/normalUser.interface';
+import { NormalUser } from '../normalUser/normalUser.model';
 import SuperAdmin from '../superAdmin/superAdmin.model';
 import { USER_ROLE } from './user.constant';
 import { TUserRole } from './user.interface';
@@ -20,11 +24,10 @@ const registerUser = async (
     payload: INormalUser & {
         password: string;
         confirmPassword: string;
-        role: 'provider' | 'customer';
         playerId?: string;
     }
 ) => {
-    const { password, confirmPassword, playerId, role, ...userData } = payload;
+    const { password, confirmPassword, playerId, ...userData } = payload;
 
     if (password !== confirmPassword) {
         throw new AppError(
@@ -58,8 +61,7 @@ const registerUser = async (
                 existingUser._id,
                 {
                     password: hashedPassword,
-                    role,
-                    roles: [role],
+                    role:"user",
                     verifyCode,
                     codeExpireIn: new Date(Date.now() + 5 * 60000),
                 },
@@ -67,15 +69,9 @@ const registerUser = async (
             );
 
             if (existingUser.profileId) {
-                if (existingUser.role === 'customer') {
-                    await Customer.deleteOne({
+                    await NormalUser.deleteOne({
                         _id: existingUser.profileId,
                     }).session(session);
-                } else {
-                    await Provider.deleteOne({
-                        _id: existingUser.profileId,
-                    }).session(session);
-                }
             }
         }
 
@@ -84,8 +80,7 @@ const registerUser = async (
                 email: userData.email,
                 phone: userData.phone,
                 password: hashedPassword,
-                role,
-                roles: [role],
+                role:'user',
                 verifyCode,
                 codeExpireIn: new Date(Date.now() + 5 * 60000),
             };
@@ -93,19 +88,12 @@ const registerUser = async (
             [user] = await User.create([userPayload], { session });
         }
 
-        if (role === 'customer') {
-            const customerPayload = {
+            const normalUserProfilePayload = {
                 ...userData,
                 user: user._id,
             };
-            [profile] = await Customer.create([customerPayload], { session });
-        } else {
-            const providerPayload = {
-                ...userData,
-                user: user._id,
-            };
-            [profile] = await Provider.create([providerPayload], { session });
-        }
+            [profile] = await NormalUser.create([normalUserProfilePayload], { session });
+       
 
         await User.findByIdAndUpdate(
             user._id,
@@ -116,7 +104,7 @@ const registerUser = async (
         sendEmail({
             email: userData.email,
             subject: 'Activate Your Account',
-            html: registrationSuccessEmail(
+            html: registrationSuccessEmailBody(
                 profile.name,
                 parseInt(user.verifyCode.toString())
             ),
@@ -258,6 +246,7 @@ const userServices = {
   updateUserProfile,
   getUserProfile,
   deleteAccount,
+  registerUser
 };
 
 export default userServices;
