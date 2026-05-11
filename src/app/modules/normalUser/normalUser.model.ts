@@ -35,6 +35,8 @@ const NormalUserSchema = new Schema<INormalUser>({
     age:{
         type: Number,
         required: true,
+        max:6,
+        min:2 
     },
     height:{
         type: Number,
