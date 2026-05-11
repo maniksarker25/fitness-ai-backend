@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { ENUM_ACTIVITY_LEVEL, ENUM_EXPERIENCE_LEVEL } from "./normalUser.enum";
+import { ENUM_ACTIVITY_LEVEL, ENUM_EXPERIENCE_LEVEL, ENUM_GENDER } from "./normalUser.enum";
 
 export interface INormalUser {
     userId: Types.ObjectId;
@@ -7,15 +7,15 @@ export interface INormalUser {
     name: string;
     phone: string;
     profile_image?: string;
-    gender?: "Male" | "Female" | "Other";
+    gender?: (typeof ENUM_GENDER)[keyof typeof ENUM_GENDER];
     bio?: string;
     age:number;
     height:number;
     weight:number;
     fitnessGoal:string;
-    experienceLevel:ENUM_EXPERIENCE_LEVEL;
+    experienceLevel:(typeof ENUM_EXPERIENCE_LEVEL)[keyof typeof ENUM_EXPERIENCE_LEVEL];
     dietaryPreferences:string[];
-    activityLevel:ENUM_ACTIVITY_LEVEL;
+    activityLevel:(typeof ENUM_ACTIVITY_LEVEL)[keyof typeof ENUM_ACTIVITY_LEVEL];
     injuries:string[];
     additionalNoteForInjuries?:string;
     mealsPerDay:number;
