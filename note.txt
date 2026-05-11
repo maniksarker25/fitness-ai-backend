@@ -1,0 +1,9 @@
+// Only offer what your PDFs support
+const goalOptions = [
+  { label: 'Build Muscle',       value: 'hypertrophy' },
+  { label: 'Get Stronger',       value: 'absolute_strength' },
+  { label: 'Strength + Muscle',  value: 'functional_hypertrophy' },
+  { label: 'Maximum Strength',   value: 'relative_strength' },
+  { label: 'Muscular Endurance', value: 'strength_endurance' },
+  { label: 'Power and Speed',    value: 'power' },
+]

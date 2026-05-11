@@ -6,12 +6,12 @@
 // ============================================================
 
 // ── Types ────────────────────────────────────────────────────
-
 export type Goal =
   | 'hypertrophy'
-  | 'strength'
   | 'functional_hypertrophy'
-  | 'endurance'
+  | 'relative_strength'
+  | 'absolute_strength'
+  | 'strength_endurance'
   | 'power'
   | 'all'
 
@@ -151,7 +151,7 @@ Use during accumulation phases only.
     metadata: {
       source: 'rep_schemes_database',
       section: 'strength_endurance_intensity',
-      goal: 'endurance',
+      goal: 'strength_endurance',
       level: ['beginner', 'intermediate'],
       phase: 'accumulation',
       intensityRange: '40-68',
@@ -353,7 +353,7 @@ Intensification phases only. Never use with beginners.
     metadata: {
       source: 'rep_schemes_database',
       section: 'relative_strength_intensity',
-      goal: 'strength',
+      goal: 'relative_strength',
       level: ['intermediate', 'advanced'],
       phase: 'intensification',
       intensityRange: '85-100',
@@ -505,7 +505,7 @@ Wait until lifter is intermediate to advanced.
     metadata: {
       source: 'rep_schemes_database',
       section: 'ascending_reps',
-      goal: ['hypertrophy', 'strength'],
+      goal: ['hypertrophy', 'absolute_strength'],
       level: ['intermediate', 'advanced'],
       phase: 'accumulation',
       topic: 'ascending_reps_method'
@@ -549,7 +549,7 @@ Hypertrophy and Absolute Strength goals.
     metadata: {
       source: 'rep_schemes_database',
       section: 'back_off_sets',
-      goal: ['hypertrophy', 'strength'],
+      goal: ['hypertrophy', 'absolute_strength'],
       level: ['intermediate', 'advanced'],
       phase: 'accumulation',
       topic: 'back_off_sets_method'
@@ -593,7 +593,7 @@ Hypertrophy, Absolute Strength, Relative Strength.
     metadata: {
       source: 'rep_schemes_database',
       section: 'broad_pyramid',
-      goal: ['hypertrophy', 'strength'],
+      goal: ['hypertrophy', 'absolute_strength','relative_strength'],
       level: ['intermediate', 'advanced'],
       phase: 'accumulation',
       topic: 'broad_pyramid_method'
@@ -682,7 +682,7 @@ Advanced lifters only.
     metadata: {
       source: 'rep_schemes_database',
       section: 'stage_system_ascending',
-      goal: ['hypertrophy', 'strength'],
+      goal: ['hypertrophy', 'absolute_strength', 'relative_strength'],
       level: ['advanced'],
       phase: 'accumulation',
       topic: 'stage_system_ascending_method'
@@ -728,7 +728,7 @@ Strength, and Power goals.
     metadata: {
       source: 'rep_schemes_database',
       section: 'paler_system',
-      goal: ['hypertrophy', 'strength', 'power'],
+      goal:['hypertrophy', 'absolute_strength', 'relative_strength', 'power'],
       level: ['advanced'],
       phase: 'both',
       topic: 'paler_system_method'
@@ -779,7 +779,7 @@ Strength, Relative Strength and Power goals.
     metadata: {
       source: 'rep_schemes_database',
       section: 'wave_loading',
-      goal: ['strength', 'power'],
+      goal: ['relative_strength', 'absolute_strength', 'power'] ,
       level: ['advanced'],
       phase: 'intensification',
       topic: 'wave_loading_method'
@@ -825,7 +825,7 @@ Intermediate to advanced only.
     metadata: {
       source: 'rep_schemes_database',
       section: 'cluster_sets',
-      goal: ['strength'],
+      goal: ['absolute_strength', 'relative_strength'] ,
       level: ['intermediate', 'advanced'],
       phase: 'accumulation',
       topic: 'cluster_sets_method'
