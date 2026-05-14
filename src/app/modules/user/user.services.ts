@@ -9,6 +9,7 @@ import config from '../../config';
 import AppError from '../../error/appError';
 import { registrationSuccessEmailBody } from '../../mailTemplate/registerSucessEmail';
 import sendEmail from '../../utilities/sendEmail';
+import { upsertDevice } from '../device/device.service';
 import { INormalUser } from '../normalUser/normalUser.interface';
 import { NormalUser } from '../normalUser/normalUser.model';
 import SuperAdmin from '../superAdmin/superAdmin.model';
@@ -25,9 +26,10 @@ const registerUser = async (
         password: string;
         confirmPassword: string;
         playerId?: string;
+        platform: 'ios' | 'android' | 'web'
     }
 ) => {
-    const { password, confirmPassword, playerId, ...userData } = payload;
+    const { password, confirmPassword, playerId,platform='android', ...userData } = payload;
 
     if (password !== confirmPassword) {
         throw new AppError(
@@ -100,6 +102,10 @@ const registerUser = async (
             { profileId: profile._id },
             { session }
         );
+
+          if (playerId) {
+            await upsertDevice(user._id.toString(), playerId, platform);
+        }
 
         sendEmail({
             email: userData.email,
