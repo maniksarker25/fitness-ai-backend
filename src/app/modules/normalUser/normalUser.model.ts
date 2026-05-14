@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { ENUM_ACTIVITY_LEVEL, ENUM_EXPERIENCE_LEVEL } from "./normalUser.enum";
+import { ENUM_ACTIVITY_LEVEL, ENUM_EQUIPMENT, ENUM_EXPERIENCE_LEVEL, ENUM_FITNESS_GOAL, ENUM_GENDER } from "./normalUser.enum";
 import { INormalUser } from "./normalUser.interface";
 
 const NormalUserSchema = new Schema<INormalUser>({
@@ -26,68 +26,91 @@ const NormalUserSchema = new Schema<INormalUser>({
     },
     gender: {
         type: String,
+        enum: Object.values(ENUM_GENDER),
         required: false,
     },
     bio: {
         type: String,
         required: false,
     },
-    age:{
+    age: {
         type: Number,
         required: true,
-        max:6,
-        min:2 
+        min: 13,
+        max: 80,
     },
-    height:{
-        type: Number,
-        required: true,
-    },
-    weight:{
+    height: {
         type: Number,
         required: true,
     },
-    fitnessGoal:{
+    weight: {
+        type: Number,
+        required: true,
+    },
+    fitnessGoal: {
         type: String,
+        enum: Object.values(ENUM_FITNESS_GOAL),
         required: true,
     },
-    experienceLevel:{
+    experienceLevel: {
         type: String,
-        enum:Object.values(ENUM_EXPERIENCE_LEVEL),
+        enum: Object.values(ENUM_EXPERIENCE_LEVEL),
         required: true,
     },
-    dietaryPreferences:{
+    daysPerWeek: {
+        type: Number,
+        enum: [2, 3, 4, 5],
+        required: true,
+    },
+    availableEquipment: {
+        type: [String],
+        enum: Object.values(ENUM_EQUIPMENT),
+        required: true,
+    },
+    activityLevel: {
+        type: String,
+        enum: Object.values(ENUM_ACTIVITY_LEVEL),
+        required: true,
+    },
+    injuries: {
         type: [String],
         required: false,
+        default: [],
     },
-    activityLevel:{
+    additionalNoteForInjuries: {
         type: String,
-        enum:Object.values(ENUM_ACTIVITY_LEVEL),
-        required: true,
+        required: false,
     },
-    injuries:{
+    dietaryPreferences: {
         type: [String],
         required: false,
+        default: [],
     },
-    additionalNoteForInjuries:{
-        type: String,
-        required: false,
-    },
-    mealsPerDay:{
+    mealsPerDay: {
         type: Number,
         required: true,
+        min: 1,
+        max: 8,
     },
-    wakeUpTime:{
+    wakeUpTime: {
         type: String,
         required: true,
     },
-    bedTime:{
+    bedTime: {
         type: String,
         required: true,
     },
-    preferredWorkoutTime:{
+    preferredWorkoutTime: {
         type: String,
         required: true,
     },
+    includeWarmup: {
+        type: Boolean,
+        required: false,
+        default: true,
+    },
+}, {
+    timestamps: true,
 });
 
-export const NormalUser = model<INormalUser>('NormalUser', NormalUserSchema);   
+export const NormalUser = model<INormalUser>('NormalUser', NormalUserSchema);
