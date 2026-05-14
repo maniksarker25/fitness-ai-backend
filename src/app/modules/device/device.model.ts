@@ -1,35 +1,40 @@
 import { Schema, model } from 'mongoose';
 
 const deviceSchema = new Schema(
-  {
-    userId: {
-      type: String,
-      required: true,
-      index: true,
-    },
+    {
+        userId: {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+            index: true,
+        },
 
-    playerId: {
-      type: String,
-      required: true,
-      index: true,
-    },
+        playerId: {
+            type: String,
+            required: true,
+            unique: true, // important
+        },
 
-    platform: {
-      type: String,
-      enum: ['ios', 'android', 'web'],
-    },
+        platform: {
+            type: String,
+            enum: ['ios', 'android', 'web'],
+            required: true,
+        },
 
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+        deviceName: String,
+        appVersion: String,
 
-    lastActiveAt: {
-      type: Date,
-      default: Date.now,
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
+
+        lastActiveAt: {
+            type: Date,
+            default: Date.now,
+        },
     },
-  },
-  { timestamps: true },
+    { timestamps: true }
 );
 
 deviceSchema.index({ userId: 1, playerId: 1 }, { unique: true });
