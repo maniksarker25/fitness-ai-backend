@@ -117,7 +117,7 @@ const loginWithGoogle = async (payload: ILoginWithGoogle) => {
     const userDataPayload: Partial<TUser> = {
       email: payload.email,
       phone: payload?.phone,
-      role: USER_ROLE.customer,
+      role: USER_ROLE.user,
     };
 
     const createUser = await User.create([userDataPayload], { session });

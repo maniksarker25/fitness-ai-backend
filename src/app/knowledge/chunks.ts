@@ -98,7 +98,7 @@ intensity and rep range to assign to their training plan.
     id: 'rep_002',
     text: `
 TOPIC: Strength Endurance rep schemes at 40-68% intensity
-GOAL: endurance
+GOAL: strength_endurance
 LEVEL: beginner, intermediate
 PHASE: accumulation
 
@@ -144,7 +144,7 @@ At 68% intensity:
 - Descending: 10, 12, 15, 20 (57 total reps)
 - Ascending: 20, 15, 12, 10 (57 total reps)
 
-WHEN TO USE: When user goal is endurance or muscular endurance.
+WHEN TO USE: When user goal is strength_endurance or muscular endurance.
 These rep schemes are appropriate for beginners and intermediates.
 Use during accumulation phases only.
     `.trim(),
@@ -293,7 +293,7 @@ Intermediate to advanced lifters only.
     id: 'rep_005',
     text: `
 TOPIC: Relative Strength rep schemes at 85-100% intensity
-GOAL: strength
+GOAL: relative_strength
 LEVEL: intermediate, advanced
 PHASE: intensification
 
@@ -347,7 +347,7 @@ At 95% intensity:
 At 100% intensity:
 - 1 rep maximum (1RM attempt)
 
-WHEN TO USE: When user goal is strength or relative strength.
+WHEN TO USE: When user goal is relative_strength or maximum strength.
 Intensification phases only. Never use with beginners.
     `.trim(),
     metadata: {
@@ -475,7 +475,7 @@ macrocycle goals. Intermediate to advanced only.
     id: 'rep_008',
     text: `
 TOPIC: Ascending Reps — how they work and when to use them
-GOAL: hypertrophy, strength
+GOAL: hypertrophy, absolute_strength
 LEVEL: intermediate, advanced
 PHASE: accumulation
 
@@ -516,7 +516,7 @@ Wait until lifter is intermediate to advanced.
     id: 'rep_009',
     text: `
 TOPIC: Back-Off Sets — how they work and when to use them
-GOAL: hypertrophy, strength
+GOAL: hypertrophy, absolute_strength
 LEVEL: intermediate, advanced
 PHASE: accumulation
 
@@ -560,7 +560,7 @@ Hypertrophy and Absolute Strength goals.
     id: 'rep_010',
     text: `
 TOPIC: Broad Pyramid — how it works and when to use it
-GOAL: hypertrophy, strength
+GOAL: hypertrophy, absolute_strength, relative_strength
 LEVEL: intermediate, advanced
 PHASE: accumulation
 
@@ -593,7 +593,7 @@ Hypertrophy, Absolute Strength, Relative Strength.
     metadata: {
       source: 'rep_schemes_database',
       section: 'broad_pyramid',
-      goal: ['hypertrophy', 'absolute_strength','relative_strength'],
+      goal: ['hypertrophy', 'absolute_strength', 'relative_strength'],
       level: ['intermediate', 'advanced'],
       phase: 'accumulation',
       topic: 'broad_pyramid_method'
@@ -651,7 +651,7 @@ Stage System Ascending. Suited to all macrocycle goals.
     id: 'rep_012',
     text: `
 TOPIC: Stage System Ascending — how it works and when to use it
-GOAL: hypertrophy, strength
+GOAL: hypertrophy, absolute_strength, relative_strength
 LEVEL: advanced
 PHASE: accumulation
 
@@ -693,7 +693,7 @@ Advanced lifters only.
     id: 'rep_013',
     text: `
 TOPIC: Paler System — how it works and when to use it
-GOAL: hypertrophy, strength, power
+GOAL: hypertrophy, absolute_strength, relative_strength, power
 LEVEL: advanced
 PHASE: both
 
@@ -728,7 +728,7 @@ Strength, and Power goals.
     metadata: {
       source: 'rep_schemes_database',
       section: 'paler_system',
-      goal:['hypertrophy', 'absolute_strength', 'relative_strength', 'power'],
+      goal: ['hypertrophy', 'absolute_strength', 'relative_strength', 'power'],
       level: ['advanced'],
       phase: 'both',
       topic: 'paler_system_method'
@@ -739,7 +739,7 @@ Strength, and Power goals.
     id: 'rep_014',
     text: `
 TOPIC: Wave Loading — how it works and when to use it
-GOAL: strength, power
+GOAL: relative_strength, absolute_strength, power
 LEVEL: advanced
 PHASE: intensification
 
@@ -779,7 +779,7 @@ Strength, Relative Strength and Power goals.
     metadata: {
       source: 'rep_schemes_database',
       section: 'wave_loading',
-      goal: ['relative_strength', 'absolute_strength', 'power'] ,
+      goal: ['relative_strength', 'absolute_strength', 'power'],
       level: ['advanced'],
       phase: 'intensification',
       topic: 'wave_loading_method'
@@ -790,7 +790,7 @@ Strength, Relative Strength and Power goals.
     id: 'rep_015',
     text: `
 TOPIC: Cluster Sets — how they work and when to use them
-GOAL: strength
+GOAL: absolute_strength, relative_strength
 LEVEL: intermediate, advanced
 PHASE: accumulation
 
@@ -825,7 +825,7 @@ Intermediate to advanced only.
     metadata: {
       source: 'rep_schemes_database',
       section: 'cluster_sets',
-      goal: ['absolute_strength', 'relative_strength'] ,
+      goal: ['absolute_strength', 'relative_strength'],
       level: ['intermediate', 'advanced'],
       phase: 'accumulation',
       topic: 'cluster_sets_method'

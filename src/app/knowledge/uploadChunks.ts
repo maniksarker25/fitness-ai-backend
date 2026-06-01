@@ -1,18 +1,31 @@
 // src/knowledge/uploadChunks.ts
-// Run ONE time only to push all chunks to Pinecone
-// Command: npx ts-node src/knowledge/uploadChunks.ts
+// Run only when chunks.ts changes.
+// Command: npm run seed:chunks
 
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-import { Pinecone } from '@pinecone-database/pinecone'
+import { Pinecone, type RecordMetadata } from '@pinecone-database/pinecone'
 import OpenAI from 'openai'
-import chunks from './chunks'
+import chunks, { type Chunk, type Goal, type Level } from './chunks'
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
-const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! })
+const requiredEnv = ['OPENAI_API_KEY', 'PINECONE_API_KEY', 'PINECONE_INDEX_NAME'] as const
 
-// ── Custom metadata type for our chunks ───────────────────────
+for (const key of requiredEnv) {
+  if (!process.env[key]) {
+    throw new Error(`Missing required environment variable: ${key}`)
+  }
+}
+
+const openaiApiKey = process.env.OPENAI_API_KEY as string
+const pineconeApiKey = process.env.PINECONE_API_KEY as string
+const pineconeIndexName = process.env.PINECONE_INDEX_NAME as string
+
+const openai = new OpenAI({ apiKey: openaiApiKey })
+const pinecone = new Pinecone({ apiKey: pineconeApiKey })
+
+const EMBEDDING_MODEL = 'text-embedding-3-small'
+const UPSERT_BATCH_SIZE = 25
 
 type ChunkPineconeMetadata = {
   source: string
@@ -20,87 +33,124 @@ type ChunkPineconeMetadata = {
   phase: string
   topic: string
   text: string
-  goal: string        // stored as comma-separated string
-  level: string       // stored as comma-separated string
+  goal: string[]
+  level: string[]
   intensityRange?: string
   frequency?: number
+} & RecordMetadata
+
+type ChunkRecord = {
+  id: string
+  values: number[]
+  metadata: ChunkPineconeMetadata
 }
 
-// ── Embed text using OpenAI ───────────────────────────────────
+const toArray = <T extends string>(value: T | T[]): string[] =>
+  Array.isArray(value) ? value : [value]
+
+const buildSearchText = (chunk: Chunk): string => {
+  const goal = toArray<Goal>(chunk.metadata.goal).join(', ')
+  const level = toArray<Level>(chunk.metadata.level).join(', ')
+
+  return [
+    `TOPIC: ${chunk.metadata.topic}`,
+    `SOURCE: ${chunk.metadata.source}`,
+    `SECTION: ${chunk.metadata.section}`,
+    `GOAL: ${goal}`,
+    `LEVEL: ${level}`,
+    `PHASE: ${chunk.metadata.phase}`,
+    chunk.text,
+  ].join('\n')
+}
+
+const buildMetadata = (chunk: Chunk): ChunkPineconeMetadata => {
+  const metadata: ChunkPineconeMetadata = {
+    source: chunk.metadata.source,
+    section: chunk.metadata.section,
+    phase: chunk.metadata.phase,
+    topic: chunk.metadata.topic,
+    text: chunk.text,
+    goal: toArray<Goal>(chunk.metadata.goal),
+    level: toArray<Level>(chunk.metadata.level),
+  }
+
+  if (chunk.metadata.intensityRange !== undefined) {
+    metadata.intensityRange = chunk.metadata.intensityRange
+  }
+
+  if (chunk.metadata.frequency !== undefined) {
+    metadata.frequency = chunk.metadata.frequency
+  }
+
+  return metadata
+}
 
 async function embedText(text: string): Promise<number[]> {
   const response = await openai.embeddings.create({
-    model: 'text-embedding-3-small',
-    input: text
+    model: EMBEDDING_MODEL,
+    input: text,
   })
+
   return response.data[0].embedding
 }
 
-// ── Upload all chunks ─────────────────────────────────────────
+const buildRecords = async (items: Chunk[]): Promise<ChunkRecord[]> => {
+  const records: ChunkRecord[] = []
+
+  for (const chunk of items) {
+    records.push({
+      id: chunk.id,
+      values: await embedText(buildSearchText(chunk)),
+      metadata: buildMetadata(chunk),
+    })
+  }
+
+  return records
+}
 
 async function uploadChunks(): Promise<void> {
-  // Pinecone v7 — target index by name directly
   const index = pinecone.index<ChunkPineconeMetadata>(
-    process.env.PINECONE_INDEX_NAME!
+    pineconeIndexName,
   )
 
   console.log(`Starting upload of ${chunks.length} chunks to Pinecone...`)
 
-  for (const chunk of chunks) {
+  let uploaded = 0
+  const failed: string[] = []
+
+  for (let i = 0; i < chunks.length; i += UPSERT_BATCH_SIZE) {
+    const batch = chunks.slice(i, i + UPSERT_BATCH_SIZE)
+
     try {
-      const values = await embedText(chunk.text)
+      const records = await buildRecords(batch)
+      await index.upsert({ records })
 
-      // Build clean metadata object
-      // Pinecone only supports string | number | boolean in metadata
-      const metadata: ChunkPineconeMetadata = {
-        source:  chunk.metadata.source,
-        section: chunk.metadata.section,
-        phase:   chunk.metadata.phase,
-        topic:   chunk.metadata.topic,
-        text:    chunk.text,
+      uploaded += records.length
+      console.log(
+        `Uploaded batch ${Math.floor(i / UPSERT_BATCH_SIZE) + 1}: ${records
+          .map(record => record.id)
+          .join(', ')}`,
+      )
 
-        // Convert arrays to comma-separated strings
-        goal: Array.isArray(chunk.metadata.goal)
-          ? chunk.metadata.goal.join(',')
-          : String(chunk.metadata.goal),
-
-        level: Array.isArray(chunk.metadata.level)
-          ? chunk.metadata.level.join(',')
-          : String(chunk.metadata.level),
-      }
-
-      // Only add optional fields if they exist
-      if (chunk.metadata.intensityRange !== undefined) {
-        metadata.intensityRange = chunk.metadata.intensityRange
-      }
-      if (chunk.metadata.frequency !== undefined) {
-        metadata.frequency = chunk.metadata.frequency
-      }
-
-      // ── Pinecone v7 syntax ────────────────────────────────
-      // upsert takes { records: [...] } not a plain array
-      await index.upsert({
-        records: [
-          {
-            id: chunk.id,
-            values,
-            metadata
-          }
-        ]
-      })
-
-      console.log(`✓ Uploaded: ${chunk.id}`)
-
-      // Small delay to avoid hitting OpenAI rate limits
-      await new Promise(r => setTimeout(r, 300))
-
+      await new Promise(resolve => setTimeout(resolve, 300))
     } catch (error) {
-      console.error(`✗ Failed: ${chunk.id}`, error)
+      const ids = batch.map(chunk => chunk.id)
+      failed.push(...ids)
+      console.error(`Failed batch containing: ${ids.join(', ')}`, error)
     }
   }
 
-  console.log('\nAll chunks uploaded successfully.')
+  if (failed.length > 0) {
+    throw new Error(
+      `Uploaded ${uploaded}/${chunks.length} chunks. Failed chunk ids: ${failed.join(', ')}`,
+    )
+  }
+
+  console.log(`\nAll ${uploaded} chunks uploaded successfully.`)
   console.log('You do not need to run this script again unless chunks.ts changes.')
 }
 
-uploadChunks()
+uploadChunks().catch(error => {
+  console.error('Chunk upload failed:', error)
+  process.exit(1)
+})
