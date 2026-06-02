@@ -7,6 +7,7 @@ import { notificationRoutes } from '../modules/notification/notification.routes'
 import { supportRoutes } from '../modules/support/support.routes';
 import { userRoutes } from '../modules/user/user.routes';
 import { normalUserRoutes } from '../modules/normalUser/normalUser.routes';
+import { workoutVideoRoutes } from '../modules/workout_video/workout_video.routes';
 
 const router = Router();
 
@@ -32,6 +33,10 @@ const moduleRoutes = [
   {
     path: '/support',
     router: supportRoutes,
+  },
+  {
+    path: '/workout-video',
+    router: workoutVideoRoutes,
   },
   {
     path: '/notification',

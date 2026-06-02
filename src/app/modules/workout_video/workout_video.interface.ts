@@ -31,11 +31,10 @@ export interface IWorkoutVideo {
     sets: number;
     reps: string;
     restSeconds: number;
-    completed?: boolean;
   }[];
 
   isFeatured: boolean;
-  isPublished: boolean;
+  totalViews: number;
 
   createdAt?: Date;
   updatedAt?: Date;

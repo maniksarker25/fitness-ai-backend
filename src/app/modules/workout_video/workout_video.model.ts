@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import { IWorkoutVideo } from './workout_video.interface';
 
 const ExerciseSchema = new Schema(
   {
@@ -27,7 +28,7 @@ const ExerciseSchema = new Schema(
   },
 );
 
-const WorkoutVideoSchema = new Schema(
+const WorkoutVideoSchema = new Schema<IWorkoutVideo>(
   {
     title: {
       type: String,
@@ -53,24 +54,14 @@ const WorkoutVideoSchema = new Schema(
       required: true,
     },
 
-    video: {
-      provider: {
-        type: String,
-        enum: ['youtube', 'vimeo', 'upload', 'other'],
-        required: true,
-      },
-
-      url: {
-        type: String,
-        required: true,
-      },
-
-      durationInMinutes: {
-        type: Number,
-        required: true,
-      },
+    video_url: {
+      type: String,
+      required: true,
     },
-
+    durationInMinutes: {
+      type: Number,
+      required: true,
+    },
     category: {
       type: String,
       enum: [
@@ -117,9 +108,9 @@ const WorkoutVideoSchema = new Schema(
       default: false,
     },
 
-    isPublished: {
-      type: Boolean,
-      default: true,
+    totalViews: {
+      type: Number,
+      default: 0,
     },
   },
   {
