@@ -5,11 +5,7 @@ import SupportController from './support.controller';
 
 const router = express.Router();
 
-router.post(
-  '/create',
-  auth(USER_ROLE.customer, USER_ROLE.bartender, USER_ROLE.venueOwner),
-  SupportController.createSupport,
-);
+router.post('/create', auth(USER_ROLE.user), SupportController.createSupport);
 
 router.get(
   '/get-all',

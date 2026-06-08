@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { ENUM_USER_STATUS } from '../../utilities/enum';
-import { USER_ROLE } from './user.constant';
 const locationSchema = z.object({
   type: z.literal('Point'),
   coordinates: z
@@ -17,14 +16,11 @@ const registerUserValidationSchema = z.object({
       required_error: 'Email is required',
       invalid_type_error: 'Email must be a string',
     }),
-    address: z.string({ required_error: 'Address is required' }).optional(),
-    location: locationSchema.optional(),
     password: z.string({ required_error: 'Password is required' }),
     confirmPassword: z.string({
       required_error: 'Confirm password is required',
     }),
-    role: z.nativeEnum(USER_ROLE),
-    skills: z.array(z.string()).optional(),
+  
   }),
 });
 
