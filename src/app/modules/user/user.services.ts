@@ -199,12 +199,19 @@ const updateUserProfile = async (userData: JwtPayload, payload: any) => {
       runValidators: true,
     });
   }
+  else if(userData.role == USER_ROLE.user){
+    result = await NormalUser.findByIdAndUpdate(userData.profileId, payload, {
+      new: true,
+      runValidators: true,
+    });
+  }
 
   return result;
 };
 
 const roleModelMap: Record<string, any> = {
   [USER_ROLE.superAdmin]: SuperAdmin,
+  [USER_ROLE.user]:NormalUser
 };
 
 const getUserProfile = async (userData: JwtPayload) => {
