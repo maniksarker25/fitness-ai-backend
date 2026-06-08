@@ -104,7 +104,7 @@ const registerUser = async (
         );
 
           if (playerId) {
-            await upsertDevice(user._id.toString(), playerId, platform);
+            await upsertDevice(user.profileId.toString(), playerId, platform);
         }
 
         sendEmail({
