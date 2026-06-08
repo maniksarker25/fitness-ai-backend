@@ -3,7 +3,7 @@ import { ENUM_ACTIVITY_LEVEL, ENUM_EQUIPMENT, ENUM_EXPERIENCE_LEVEL, ENUM_FITNES
 import { INormalUser } from "./normalUser.interface";
 
 const NormalUserSchema = new Schema<INormalUser>({
-    userId: {
+    user: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true,
@@ -18,11 +18,12 @@ const NormalUserSchema = new Schema<INormalUser>({
     },
     phone: {
         type: String,
-        required: true,
+        default:""
     },
     profile_image: {
         type: String,
         required: false,
+        default:""
     },
     gender: {
         type: String,
@@ -32,45 +33,45 @@ const NormalUserSchema = new Schema<INormalUser>({
     bio: {
         type: String,
         required: false,
+        default:""
     },
     age: {
         type: Number,
-        required: true,
         min: 13,
         max: 80,
     },
     height: {
         type: Number,
-        required: true,
+        default:null
     },
     weight: {
         type: Number,
-        required: true,
+        default:null
     },
     fitnessGoal: {
         type: String,
         enum: Object.values(ENUM_FITNESS_GOAL),
-        required: true,
+        default:null
     },
     experienceLevel: {
         type: String,
         enum: Object.values(ENUM_EXPERIENCE_LEVEL),
-        required: true,
+        default:null
     },
     daysPerWeek: {
         type: Number,
         enum: [2, 3, 4, 5],
-        required: true,
+        default:null
     },
     availableEquipment: {
         type: [String],
         enum: Object.values(ENUM_EQUIPMENT),
-        required: true,
+       default:null
     },
     activityLevel: {
         type: String,
         enum: Object.values(ENUM_ACTIVITY_LEVEL),
-        required: true,
+        default:null
     },
     injuries: {
         type: [String],
@@ -79,7 +80,7 @@ const NormalUserSchema = new Schema<INormalUser>({
     },
     additionalNoteForInjuries: {
         type: String,
-        required: false,
+        default:null
     },
     dietaryPreferences: {
         type: [String],
@@ -88,25 +89,24 @@ const NormalUserSchema = new Schema<INormalUser>({
     },
     mealsPerDay: {
         type: Number,
-        required: true,
         min: 1,
         max: 8,
+        default:null
     },
     wakeUpTime: {
         type: String,
-        required: true,
+        default:null
     },
     bedTime: {
         type: String,
-        required: true,
+        default:null
     },
     preferredWorkoutTime: {
         type: String,
-        required: true,
+        default:null
     },
     includeWarmup: {
         type: Boolean,
-        required: false,
         default: true,
     },
 }, {

@@ -11,7 +11,7 @@ import {
 
 export interface INormalUser {
 
-  userId:          Types.ObjectId
+  user:          Types.ObjectId
   email:           string
   name:            string
   phone:           string
