@@ -41,7 +41,6 @@ router.patch(
   ),
   uploadFile(),
   parseJsonBody(),
-  validateRequest(userValidations.updateUserProfileValidationSchema),
   userControllers.updateUserProfile,
 );
 
