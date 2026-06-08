@@ -66,7 +66,7 @@ export interface IBlueprint {
 
 export interface IBlueprintDocument extends IBlueprint, Document {
   _id: Types.ObjectId;
-  userId: Types.ObjectId;
+  user: Types.ObjectId;
   generatedAt: Date;
   createdAt: Date;
   updatedAt: Date;

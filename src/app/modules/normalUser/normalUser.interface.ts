@@ -1,16 +1,16 @@
 // normalUser.interface.ts
 
-import { Types } from "mongoose"
+import { Types } from "mongoose";
 import {
   ENUM_ACTIVITY_LEVEL,
   ENUM_EQUIPMENT,
   ENUM_EXPERIENCE_LEVEL,
   ENUM_FITNESS_GOAL,
   ENUM_GENDER
-} from "./normalUser.enum"
+} from "./normalUser.enum";
 
 export interface INormalUser {
-
+_id:Types.ObjectId;
   user:          Types.ObjectId
   email:           string
   name:            string

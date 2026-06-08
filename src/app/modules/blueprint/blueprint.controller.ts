@@ -21,7 +21,7 @@ import {
  * persists the result, and returns it.
  */
 export const generateBlueprint = catchAsync(async (req, res) => {
-  const userId = req.user?.userId; // set by auth middleware
+  const userId = req.user?.id; 
 
   if (!userId) {
     throw new AppError(httpStatus.UNAUTHORIZED, 'Authentication required');

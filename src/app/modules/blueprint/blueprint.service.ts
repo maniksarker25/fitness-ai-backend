@@ -487,7 +487,6 @@ const generateBlueprintFromLLM = async (
   );
 };
 
-// ── Main Service ──────────────────────────────────────────────────────────────
 
 /**
  * Full blueprint generation pipeline:
@@ -502,7 +501,7 @@ const generateBlueprintFromLLM = async (
 export const generateBlueprintService = async (
   user: INormalUser,
 ): Promise<IBlueprintGenerationResult> => {
-  // ── 1. Environment validation ──────────────────────────────────────────────
+  //Environment validation ──────────────────────────────────────────────
   const requiredEnv = [
     'OPENAI_API_KEY',
     'PINECONE_API_KEY',
@@ -518,21 +517,21 @@ export const generateBlueprintService = async (
     }
   }
 
-  // ── 2. Clients ─────────────────────────────────────────────────────────────
+  // Clients ─────────────────────────────────────────────────────────────
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY as string });
   const pinecone = new Pinecone({
     apiKey: process.env.PINECONE_API_KEY as string,
   });
 
-  // ── 3. RAG retrieval ───────────────────────────────────────────────────────
+  //RAG retrieval ───────────────────────────────────────────────────────
   console.info(
-    `[Blueprint] Retrieving RAG context | user: ${user.userId} | goal: ${user.fitnessGoal} | level: ${user.experienceLevel} | days: ${user.daysPerWeek}`,
+    `[Blueprint] Retrieving RAG context | user: ${user._id} | goal: ${user.fitnessGoal} | level: ${user.experienceLevel} | days: ${user.daysPerWeek}`,
   );
 
   const ragContext = await retrieveRagContext(user, openai, pinecone);
 
-  // ── 4 + 5. Generate + validate ────────────────────────────────────────────
-  console.info(`[Blueprint] Generating blueprint | user: ${user.userId}`);
+  //  Generate + validate ────────────────────────────────────────────
+  console.info(`[Blueprint] Generating blueprint | user: ${user._id}`);
 
   const blueprintData = await generateBlueprintFromLLM(
     user,
@@ -540,15 +539,15 @@ export const generateBlueprintService = async (
     openai,
   );
 
-  // ── 6. Persist ────────────────────────────────────────────────────────────
+  // Persist ────────────────────────────────────────────────────────────
   const saved: IBlueprintDocument = await Blueprint.create({
-    userId: user.userId,
+    user: user._id,
     ...blueprintData,
     generatedAt: new Date(),
   });
 
   console.info(
-    `[Blueprint] Saved blueprint ${saved._id} | user: ${user.userId}`,
+    `[Blueprint] Saved blueprint ${saved._id} | user: ${user._id}`,
   );
 
   return {
@@ -557,18 +556,14 @@ export const generateBlueprintService = async (
   };
 };
 
-/**
- * Most recent blueprint for a user. Returns null if none exists.
- */
+
 export const getLatestBlueprintService = async (
   userId: string,
 ): Promise<IBlueprintDocument | null> => {
   return Blueprint.findOne({ userId }).sort({ generatedAt: -1 }).lean().exec();
 };
 
-/**
- * All blueprints for a user, newest first.
- */
+
 export const getBlueprintHistoryService = async (
   userId: string,
 ): Promise<IBlueprintDocument[]> => {

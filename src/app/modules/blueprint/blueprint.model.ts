@@ -52,9 +52,9 @@ const WeeklyScheduleDaySchema = new Schema(
 
 const BlueprintSchema = new Schema<IBlueprintDocument>(
   {
-    userId: {
+    user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'NormalUser',
       required: true,
       index: true,
     },
