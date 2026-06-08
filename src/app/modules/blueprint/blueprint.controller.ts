@@ -27,7 +27,7 @@ export const generateBlueprint = catchAsync(async (req, res) => {
     throw new AppError(httpStatus.UNAUTHORIZED, 'Authentication required');
   }
 
-  const user = await NormalUser.findOne({ userId }).lean();
+  const user = await NormalUser.findOne({ user:userId }).lean();
 
   if (!user) {
     throw new AppError(
