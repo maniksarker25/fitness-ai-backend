@@ -160,10 +160,10 @@ export const buildWeekDates = (startDate: string): string[] => {
   return dates;
 };
 
-export const buildEndDate = (startDate: string): string => {
+export const buildEndDate = (startDate: string): Date => {
   const base = new Date(startDate);
   base.setDate(base.getDate() + 6);
-  return base.toISOString().split('T')[0];
+  return base;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -148,8 +148,8 @@ const WeeklyPlanSchema = new Schema<IWeeklyPlanDocument>(
     weekNumber: { type: Number, required: true, min: 1, max: 4 },
     phase: { type: String, required: true },
     objective: { type: String, required: true },
-    startDate: { type: String, required: true },
-    endDate: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
     schedule: {
       type: [WeekDayMetaSchema],
       required: true,
