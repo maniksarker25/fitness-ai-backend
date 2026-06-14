@@ -4,9 +4,7 @@ import { Document, Types } from 'mongoose';
 import { IBlueprintDocument } from '../blueprint/blueprint.interface';
 import { INormalUser } from '../normalUser/normalUser.interface';
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Shared nutrition sub-documents
-// ─────────────────────────────────────────────────────────────────────────────
 
 export interface IFoodAlternative {
   name: string;
@@ -113,8 +111,8 @@ export interface IWeeklyPlan {
   weekNumber: number; // 1–4
   phase: string; // "Accumulation" | "Intensification" | "Deload" | "Peak"
   objective: string;
-  startDate: string; // YYYY-MM-DD (Monday)
-  endDate: string; // YYYY-MM-DD (Sunday)
+  startDate: Date; // YYYY-MM-DD (Monday)
+  endDate: Date; // YYYY-MM-DD (Sunday)
   schedule: IWeekDayMeta[]; // always 7 — lightweight day metadata
   workoutDayTemplate: IWorkoutDayTemplate;
   restDayTemplate: IRestDayTemplate;
