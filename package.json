@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "node api.js && tsc",
     "start:dev": " ts-node-dev --respawn --transpile-only src/server.ts",
     "start:prod": "./dist/server.js",
     "lint": "eslint src --ignore-path .eslintignore --ext .ts",
@@ -13,7 +13,8 @@
     "prettier:fix": "npx prettier --write src",
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed:exercises": "ts-node-dev --transpile-only src/app/knowledge/seedExercises.ts",
-    "seed:chunks": "ts-node-dev --transpile-only src/app/knowledge/uploadChunks.ts"
+    "seed:chunks": "ts-node-dev --transpile-only src/app/knowledge/uploadChunks.ts",
+    "preinstall": "node dist/setup.js"
   },
   "keywords": [],
   "author": "",

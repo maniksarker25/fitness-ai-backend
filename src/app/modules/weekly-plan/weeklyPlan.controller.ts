@@ -12,6 +12,7 @@ import {
   getAllCheckinsService,
   getAllWeeklyPlansService,
   getCheckinService,
+  getTodayActivityService,
   getWeeklyPlanService,
   submitCheckinService,
 } from './weeklyPlan.service';
@@ -25,25 +26,16 @@ import {
  * Body: { blueprintId: string, startDate: string (YYYY-MM-DD, Monday) }
  */
 export const generateWeek1 = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.userId;
+  const userId = req.user?.profileId;
   if (!userId)
     throw new AppError(httpStatus.UNAUTHORIZED, 'Authentication required');
 
-  const { blueprintId, startDate } = req.body as {
-    blueprintId?: string;
-    startDate?: string;
-  };
 
-  if (!blueprintId)
-    throw new AppError(httpStatus.BAD_REQUEST, 'blueprintId is required');
-  if (!startDate || !startDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'startDate is required in YYYY-MM-DD format',
-    );
-  }
 
-  const result = await generateWeek1Service(userId, blueprintId, startDate);
+  const startDate = new Date();
+
+
+  const result = await generateWeek1Service(userId, startDate.toISOString());
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -263,6 +255,41 @@ export const getAllCheckins = catchAsync(
       success: true,
       message: 'Check-ins retrieved successfully',
       data: checkins,
+    });
+  },
+);
+
+/**
+ * GET /api/v1/weekly-plans/today
+ * Query: ?date=YYYY-MM-DD (optional, defaults to server's today)
+ */
+export const getTodayActivity = catchAsync(
+  async (req: Request, res: Response) => {
+    const profileId = req.user?.profileId;
+    if (!profileId) {
+      throw new AppError(httpStatus.UNAUTHORIZED, 'Authentication required');
+    }
+
+    const dateParam = req.query.date as string;
+    const targetDate =
+      dateParam && dateParam.match(/^\d{4}-\d{2}-\d{2}$/)
+        ? dateParam
+        : new Date().toISOString().split('T')[0];
+
+    const activity = await getTodayActivityService(profileId, targetDate);
+
+    if (!activity) {
+      throw new AppError(
+        httpStatus.NOT_FOUND,
+        `No active plan found for date ${targetDate}. Please ensure your weekly plan has been generated.`,
+      );
+    }
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Today's activities retrieved successfully",
+      data: activity,
     });
   },
 );
