@@ -11,6 +11,7 @@ import {
 } from '../blueprint/blueprint.interface';
 import { Blueprint } from '../blueprint/blueprint.model';
 import { INormalUser } from '../normalUser/normalUser.interface';
+import { NormalUser } from '../normalUser/normalUser.model';
 import {
   IExercise,
   IFood,
@@ -166,6 +167,15 @@ const assertPositiveInt = (val: unknown, path: string): void => {
   }
 };
 
+const assertNonNegativeInt = (val: unknown, path: string): void => {
+  if (typeof val !== 'number' || !Number.isInteger(val) || val < 0) {
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      `Weekly plan validation: ${path} must be a non-negative integer, got ${val}`,
+    );
+  }
+};
+
 const assertPositiveNum = (val: unknown, path: string): void => {
   if (typeof val !== 'number' || val <= 0) {
     throw new AppError(
@@ -207,9 +217,9 @@ const validateNutritionPlan = (
       );
     }
     assertPositiveInt(meal.targetCalories, `${mp}.targetCalories`);
-    assertPositiveInt(meal.targetProtein, `${mp}.targetProtein`);
-    assertPositiveInt(meal.targetCarbs, `${mp}.targetCarbs`);
-    assertPositiveInt(meal.targetFat, `${mp}.targetFat`);
+    assertNonNegativeInt(meal.targetProtein, `${mp}.targetProtein`);
+    assertNonNegativeInt(meal.targetCarbs, `${mp}.targetCarbs`);
+    assertNonNegativeInt(meal.targetFat, `${mp}.targetFat`);
 
     if (!Array.isArray(meal.foods) || meal.foods.length < 2) {
       throw new AppError(
@@ -227,9 +237,9 @@ const validateNutritionPlan = (
         );
       }
       assertPositiveInt(food.calories, `${fp}.calories`);
-      assertPositiveInt(food.protein, `${fp}.protein`);
-      assertPositiveInt(food.carbs, `${fp}.carbs`);
-      assertPositiveInt(food.fat, `${fp}.fat`);
+      assertNonNegativeInt(food.protein, `${fp}.protein`);
+      assertNonNegativeInt(food.carbs, `${fp}.carbs`);
+      assertNonNegativeInt(food.fat, `${fp}.fat`);
       if (!Array.isArray(food.alternatives)) {
         throw new AppError(
           httpStatus.INTERNAL_SERVER_ERROR,
@@ -551,7 +561,7 @@ const _generateAndSave = async (
   }
 
   console.info(
-    `[WeeklyPlan] RAG retrieval | user: ${user.userId} | week: ${weekNumber}`,
+    `[WeeklyPlan] RAG retrieval | user: ${user._id} | week: ${weekNumber}`,
   );
   const ragContext = await retrieveWeeklyRagContext(
     user,
@@ -562,7 +572,7 @@ const _generateAndSave = async (
   );
 
   console.info(
-    `[WeeklyPlan] Generating templates | user: ${user.userId} | week: ${weekNumber}`,
+    `[WeeklyPlan] Generating templates | user: ${user._id} | week: ${weekNumber}`,
   );
   const templates = await generateTemplatesFromLLM(input, ragContext, openai);
 
@@ -570,7 +580,7 @@ const _generateAndSave = async (
   const schedule = buildSchedule(blueprint, startDate);
 
   const saved: IWeeklyPlanDocument = await WeeklyPlan.create({
-    userId: user.userId,
+    userId: user._id,
     blueprintId: blueprint._id,
     weekNumber,
     phase: templates.phase,
@@ -584,7 +594,7 @@ const _generateAndSave = async (
   });
 
   console.info(
-    `[WeeklyPlan] Saved plan ${saved._id} | user: ${user.userId} | week: ${weekNumber}`,
+    `[WeeklyPlan] Saved plan ${saved._id} | user: ${user._id} | week: ${weekNumber}`,
   );
 
   return { weeklyPlanId: saved._id.toString(), weeklyPlan: saved };
@@ -600,7 +610,6 @@ const _generateAndSave = async (
  */
 export const generateWeek1Service = async (
   userId: string,
-  blueprintId: string,
   startDate: string,
 ): Promise<IGenerateWeeklyPlanResult> => {
   assertEnv();
@@ -608,21 +617,23 @@ export const generateWeek1Service = async (
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
   const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
 
-  const blueprint = (await Blueprint.findById(
-    blueprintId,
-  ).lean()) as IBlueprintDocument | null;
+  const blueprint = (await Blueprint.findOne({
+    user: userId,
+  }).lean()) as IBlueprintDocument | null;
+  console.log("Blueprint", blueprint)
   if (!blueprint)
     throw new AppError(httpStatus.NOT_FOUND, 'Blueprint not found');
 
-  const { NormalUser } = await import('../normalUser/normalUser.model');
-  const user = (await NormalUser.findOne({
-    userId: blueprint.userId,
-  }).lean()) as INormalUser | null;
-  if (!user) throw new AppError(httpStatus.NOT_FOUND, 'User profile not found');
+  console.log("userId", userId)
+  const data = await NormalUser.findOne();
+  console.log(data)
+  const userData = (await NormalUser.findById(userId).lean()) as INormalUser | null;
+  console.log("User Data", userData)
+  if (!userData) throw new AppError(httpStatus.NOT_FOUND, 'User profile not found');
 
   return _generateAndSave(
     {
-      user,
+      user: userData,
       blueprint,
       weekNumber: 1,
       startDate,
@@ -665,7 +676,7 @@ export const generateNextWeekService = async (
 
   const { NormalUser } = await import('../normalUser/normalUser.model');
   const user = (await NormalUser.findOne({
-    userId: blueprint.userId,
+    user: blueprint.user,
   }).lean()) as INormalUser | null;
   if (!user) throw new AppError(httpStatus.NOT_FOUND, 'User profile not found');
 
@@ -793,3 +804,54 @@ export const getAllCheckinsService = async (
   blueprintId: string,
 ): Promise<IWeeklyCheckinDocument[]> =>
   WeeklyCheckin.find({ blueprintId }).sort({ weekNumber: 1 }).lean().exec();
+
+export const getTodayActivityService = async (
+  profileId: string,
+  targetDate: string,
+): Promise<any | null> => {
+
+  const start = new Date(targetDate);
+  start.setUTCHours(0, 0, 0, 0);
+
+  const end = new Date(targetDate);
+  end.setUTCHours(23, 59, 59, 999);
+
+  const plan = await WeeklyPlan.findOne({
+    userId: new mongoose.Types.ObjectId(profileId),
+    startDate: { $lte: end },
+    endDate: { $gte: start },
+  });
+
+  console.log("Plan", plan)
+
+  if (!plan) {
+    return null;
+  }
+
+  const dayMeta = plan.schedule.find((d) => d.date === targetDate);
+  if (!dayMeta) {
+    return null;
+  }
+
+  const response: any = {
+    date: targetDate,
+    dayOfWeek: dayMeta.day,
+    isWorkoutDay: dayMeta.isWorkoutDay,
+    workoutType: dayMeta.workoutType,
+    focus: dayMeta.focus,
+    weekNumber: plan.weekNumber,
+    phase: plan.phase,
+    objective: plan.objective,
+    blueprintId: plan.blueprintId.toString(),
+    weeklyPlanId: plan._id.toString(),
+  };
+
+  if (dayMeta.isWorkoutDay) {
+    response.nutritionPlan = plan.workoutDayTemplate.nutritionPlan;
+    response.workoutPlan = plan.workoutDayTemplate.workoutPlan;
+  } else {
+    response.nutritionPlan = plan.restDayTemplate.nutritionPlan;
+  }
+
+  return response;
+};

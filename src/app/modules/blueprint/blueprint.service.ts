@@ -27,8 +27,6 @@ const RAG_TOP_K = 8;
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
 
-// Enums mirrored from the STRICT_BLUEPRINT_SCHEMA in blueprint.prompt.ts
-// If the schema changes there, update these too.
 const VALID_GOALS = new Set([
   'muscle_gain',
   'strength',
@@ -501,7 +499,6 @@ const generateBlueprintFromLLM = async (
 export const generateBlueprintService = async (
   user: INormalUser,
 ): Promise<IBlueprintGenerationResult> => {
-  //Environment validation ──────────────────────────────────────────────
   const requiredEnv = [
     'OPENAI_API_KEY',
     'PINECONE_API_KEY',

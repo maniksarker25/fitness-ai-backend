@@ -8,6 +8,7 @@ import { BlueprintRoutes } from '../modules/blueprint/blueprint.routes';
 import { normalUserRoutes } from '../modules/normalUser/normalUser.routes';
 import { supportRoutes } from '../modules/support/support.routes';
 import { userRoutes } from '../modules/user/user.routes';
+import { WeeklyPlanRoutes } from '../modules/weekly-plan/weeklyPlan.routes';
 import { workoutVideoRoutes } from '../modules/workout_video/workout_video.routes';
 
 const router = Router();
@@ -47,6 +48,10 @@ const moduleRoutes = [
     path: '/blueprint',
     router: BlueprintRoutes,
   },
+  {
+    path:"/weekly-plan",
+    router:WeeklyPlanRoutes
+  }
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.router));
